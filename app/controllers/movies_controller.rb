@@ -1,5 +1,6 @@
 class MoviesController < ApplicationController
   helper_method :hilight
+  helper_method :selected_rating?
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -11,14 +12,28 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = ['G','PG','PG-13','R']
+    @ratingChosed = params[:ratings] unless params[:ratings].nil?
     @sort = params[:sort] unless  params[:sort].nil?
     
-    if !@sort.nil?
-      return @movies = Movie.all.order(@sort)
+    if !@ratingChosed.nil?
+      array_ratings = params[:ratings].keys
+    end
+    
+    if( params[:ratings].nil? && ! @ratingChosed.nil? || params[:sort].nil? && !@sort.nil?)
+      redirect_to movies_path("ratings" =>@ratingChosed, "order" => params[:sort] )
+    end
+    
+    if !@ratingChosed.nil?
+      return @movies = Movie.where(rating: array_ratings).order(@sort)
+    elsif !@sort.nil?
+      return @movies = Movie.order(@sort)
     else
       return @movies = Movie.all
     end
-  end
+  end 
+ 
+    
 
   def new
     # default: render 'new' template
@@ -56,5 +71,11 @@ class MoviesController < ApplicationController
       return nil
     end
  end
+ 
+  def selected_rating?(rating)
+    selected_rating = @chosen_ratings
+    return true if selected_rating.nil?
+    selected_rating.include? rating
+  end
 
 end
