@@ -13,25 +13,27 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = ['G','PG','PG-13','R']
-    @ratingChosed = params[:ratings] unless params[:ratings].nil?
-    @sort = params[:sort] unless  params[:sort].nil?
+    session[:ratings] = params[:ratings] unless params[:ratings].nil?
+    session[:sort] = params[:sort] unless  params[:sort].nil?
     
-    if !@ratingChosed.nil?
-      array_ratings = params[:ratings].keys
-    end
     
-    if( params[:ratings].nil? && ! @ratingChosed.nil? || params[:sort].nil? && !@sort.nil?)
-      redirect_to movies_path("ratings" =>@ratingChosed, "order" => params[:sort] )
-    end
     
-    if !@ratingChosed.nil?
-      return @movies = Movie.where(rating: array_ratings).order(@sort)
-    elsif !@sort.nil?
-      return @movies = Movie.order(@sort)
+    
+    if !params[:ratings].nil? || !params[:sort].nil?
+      if !params[:ratings].nil?
+        array_ratings = params[:ratings].keys
+        return @movies = Movie.where(rating: array_ratings).order(session[:sort])
+      else
+        return @movies = Movie.all.order(session[:sort])
+      end
     else
       return @movies = Movie.all
     end
-  end 
+    
+    if(!session[:ratings].nil? || !session[:sort].nil?)
+      redirect_to movies_path("ratings" =>session[:ratings], "order" => session[:sort] )
+    end 
+  end
  
     
 
