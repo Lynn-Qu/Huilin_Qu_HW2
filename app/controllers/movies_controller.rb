@@ -67,7 +67,7 @@ class MoviesController < ApplicationController
   
  def hilight(column)
    
-    if(@sort == column)
+    if(session[:sort] == column)
       return 'hilite'
     else
       return nil
@@ -75,7 +75,7 @@ class MoviesController < ApplicationController
  end
  
   def selected_rating?(rating)
-    selected_rating = @chosen_ratings
+    selected_rating = session[:ratings]
     return true if selected_rating.nil?
     selected_rating.include? rating
   end
