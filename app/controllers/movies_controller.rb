@@ -1,5 +1,5 @@
 class MoviesController < ApplicationController
-
+  helper_method :hilight
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -11,7 +11,13 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @sort = params[:sort] unless  params[:sort].nil?
+    
+    if !@sort.nil?
+      return @movies = Movie.all.order(@sort)
+    else
+      return @movies = Movie.all
+    end
   end
 
   def new
@@ -41,5 +47,14 @@ class MoviesController < ApplicationController
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
   end
+  
+ def hilight(column)
+   
+    if(@sort == column)
+      return 'hilite'
+    else
+      return nil
+    end
+ end
 
 end
