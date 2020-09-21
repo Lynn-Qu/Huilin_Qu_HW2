@@ -1,6 +1,8 @@
 class MoviesController < ApplicationController
-  helper_method :hilight
+  
   helper_method :selected_rating?
+  helper_method :hilight
+  
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -16,23 +18,23 @@ class MoviesController < ApplicationController
     session[:ratings] = params[:ratings] unless params[:ratings].nil?
     session[:sort] = params[:sort] unless  params[:sort].nil?
     
-    
-    
-    
-    if !params[:ratings].nil? || !params[:sort].nil?
+    # initialization
+    if (params[:ratings].nil? && !session[:ratings].nil?) || (params[:sort].nil? && !session[:sort].nil?)
+      redirect_to movies_path("ratings" => session[:ratings], "sort" => session[:sort])
+      # when user made choices
+    elsif !params[:ratings].nil? || !params[:sort].nil?
       if !params[:ratings].nil?
         array_ratings = params[:ratings].keys
         return @movies = Movie.where(rating: array_ratings).order(session[:sort])
       else
         return @movies = Movie.all.order(session[:sort])
       end
+    elsif !session[:ratings].nil? || !session[:sort].nil?
+      redirect_to movies_path("ratings" =>session[:ratings], "order" => session[:sort] )
     else
-      return @movies = Movie.all
+      return @movies = Movie.all.order(session[:sort])
     end
     
-    if(!session[:ratings].nil? || !session[:sort].nil?)
-      redirect_to movies_path("ratings" =>session[:ratings], "order" => session[:sort] )
-    end 
   end
  
     
